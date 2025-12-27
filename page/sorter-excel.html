@@ -1,1 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Filter Excel Offline v4.0</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Filter Excel Offline v4.0</h1>
+    <p><small>
+      Mode 1 = Kota | Mode 2 = Auto Kota | Mode 3 = Produk | <b>Mode 4 = Loyalitas Order</b>
+    </small></p>
+    
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv"/>
+
+    <!-- Kontrol Mode -->
+    <div id="controls" style="display:none; margin:30px 0; text-align:center;">
+      <button onclick="switchMode(1)">Mode 1: Kota</button>
+      <button onclick="switchMode(2)">Mode 2: Auto Kota</button>
+      <button onclick="switchMode(3)">Mode 3: Produk</button>
+      <button onclick="switchMode(4)" style="background:#ff9500; color:#fff;">
+        Mode 4: Jumlah Order
+      </button>
+    </div>
+
+    <!-- Mode 1: Kota -->
+    <div id="mode1" style="display:none; text-align:center; margin:20px 0;">
+      <select id="filterKota" onchange="applyFilterKota()" style="padding:12px; font-size:16px;"></select><br><br>
+      <button onclick="exportKota()" id="btnExportKota" disabled style="padding:14px 30px;">
+        Export Kota & Hapus Data
+      </button>
+    </div>
+
+    <!-- Mode 2: Auto Kota -->
+    <div id="mode2" style="display:none; text-align:center; margin:20px 0;">
+      <button onclick="exportByKota()" style="padding:14px 30px; margin:10px;">
+        Export Per Kota (File Terpisah)
+      </button><br>
+      <button onclick="exportByKotaOneFile()" style="padding:14px 30px; margin:10px;">
+        Export 1 File (Beda Sheet per Kota)
+      </button>
+    </div>
+
+    <!-- Mode 3: Produk -->
+    <div id="mode3" style="display:none; text-align:center; margin:20px 0;">
+      <h3>3A – Filter Manual Produk</h3>
+      <select id="filterProduk" onchange="applyFilterProduk()" style="padding:12px; font-size:16px;"></select><br><br>
+      <button onclick="exportProdukManual()" id="btnExportProduk" disabled style="padding:14px 30px;">
+        Export 1 Produk & Hapus
+      </button>
+
+      <hr style="margin:35px 0; border:1px dashed #555;">
+
+      <h3>3B – Auto Export Semua Produk</h3>
+      <button onclick="exportAllProdukSeparate()" style="padding:14px 30px; margin:10px;">
+        File Terpisah per Produk
+      </button><br>
+      <button onclick="exportAllProdukOneFile()" style="padding:14px 30px; margin:10px;">
+        1 File (Beda Sheet per Produk)
+      </button>
+    </div>
+
+    <!-- Mode 4: Jumlah Order Pelanggan (SUDAH BENAR DI DALAM CONTAINER) -->
+    <div id="mode4" style="display:none; text-align:center; margin:20px 0;">
+      <h3>Mode 4 – Filter Berdasarkan Jumlah Order</h3>
+      <div style="margin:30px 0;">
+        <button onclick="filterByOrderCount(1)" style="padding:20px 35px; font-size:18px; margin:12px; min-width:180px;">
+          1× Order<br><small>Hanya beli 1 kali</small>
+        </button>
+        <button onclick="filterByOrderCount(2)" style="padding:20px 35px; font-size:18px; margin:12px; min-width:180px;">
+          2× Order<br><small>Beli tepat 2 kali</small>
+        </button>
+        <button onclick="filterByOrderCount(3)" style="padding:20px 35px; font-size:18px; margin:12px; min-width:180px; background:#ff9500; color:white;">
+          3×+ Order<br><small>Loyal Customer (3+ kali)</small>
+        </button>
+      </div>
+
+      <button onclick="exportOrderGroup()" id="btnExportOrder" disabled style="padding:16px 50px; font-size:18px; margin:20px;">
+        Export Group Ini & Hapus dari Data
+      </button>
+
+      <div id="orderStats" style="margin:25px 0; padding:15px; background:rgba(0,255,136,0.1); border-radius:12px; font-size:1.1rem;">
+        <!-- Statistik akan muncul otomatis -->
+      </div>
+    </div>
+
+    <!-- Tabel & Status -->
+    <div id="tableContainer" style="margin-top:30px;"></div>
+    <div id="status" style="margin:25px 0; text-align:center; color:#00ff88; font-weight:bold; font-size:1.1rem;"></div>
+
+    <div style="text-align:center; margin-top:30px;">
+      <button onclick="resetData()" style="padding:14px 30px; background:#ff4444;">
+        Reset Semua & Upload Ulang
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
 
