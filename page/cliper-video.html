@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Clipper Sederhana</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #ff0000; /* Warna merah seperti YouTube */
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: none;
+        }
+        #preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Video Clipper</h1>
+    <p>Masukkan URL YouTube, waktu mulai dan akhir (dalam detik), lalu generate link/embed clip.</p>
+
+    <label for="url">URL Video YouTube:</label>
+    <input type="text" id="url" placeholder="Contoh: https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+
+    <label for="start">Waktu Mulai (detik):</label>
+    <input type="number" id="start" value="0" min="0">
+
+    <label for="end">Waktu Akhir (detik, opsional - jika kosongkan tidak auto stop):</label>
+    <input type="number" id="end" min="0">
+
+    <button onclick="generateClip()">Generate Clip</button>
+
+    <div id="result">
+        <h2>Hasil Clip:</h2>
+        <p><strong>Link Share:</strong></p>
+        <textarea id="shareLink" readonly></textarea>
+
+        <p><strong>Kode Embed:</strong></p>
+        <textarea id="embedCode" readonly></textarea>
+
+        <div id="preview">
+            <h3>Preview Player:</h3>
+            <div id="playerContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function getVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function generateClip() {
+            const urlInput = document.getElementById('url').value.trim();
+            const start = parseInt(document.getElementById('start').value) || 0;
+            const end = parseInt(document.getElementById('end').value) || null;
+
+            const videoId = getVideoId(urlInput);
+            if (!videoId) {
+                alert('URL YouTube tidak valid!');
+                return;
+            }
+
+            let shareLink = `https://www.youtube.com/watch?v=${videoId}&t=${start}s`;
+            if (end && end > start) {
+                shareLink += `&end=${end}`;
+            }
+
+            let embedCode = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?start=${start}`;
+            if (end && end > start) {
+                embedCode += `&end=${end}`;
+            }
+            embedCode += '&autoplay=0" frameborder="0" allowfullscreen></iframe>';
+
+            document.getElementById('shareLink').value = shareLink;
+            document.getElementById('embedCode').value = embedCode;
+
+            // Preview player
+            let playerHtml = `<iframe width="100%" height="400" src="https://www.youtube.com/embed/${videoId}?start=${start}`;
+            if (end && end > start) {
+                playerHtml += `&end=${end}`;
+            }
+            playerHtml += '" frameborder="0" allowfullscreen></iframe>';
+
+            document.getElementById('playerContainer').innerHTML = playerHtml;
+
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
