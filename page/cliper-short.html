@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Shorts Clipper Sederhana</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #ff0000;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: none;
+        }
+        #preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+        }
+        .note {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Shorts Clipper</h1>
+    <p>Masukkan URL YouTube Shorts, waktu mulai dan akhir (dalam detik), lalu generate link/embed clip khusus untuk Shorts.</p>
+    <p class="note">Catatan: YouTube Shorts maksimal 60 detik. Parameter "end" mungkin tidak selalu berfungsi sempurna di player Shorts, tapi "start" akan membuat video langsung mulai dari waktu tersebut.</p>
+
+    <label for="url">URL YouTube Shorts:</label>
+    <input type="text" id="url" placeholder="Contoh: https://www.youtube.com/shorts/dQw4w9WgXcQ">
+
+    <label for="start">Waktu Mulai (detik):</label>
+    <input type="number" id="start" value="0" min="0">
+
+    <label for="end">Waktu Akhir (detik, opsional):</label>
+    <input type="number" id="end" min="0">
+
+    <button onclick="generateClip()">Generate Clip</button>
+
+    <div id="result">
+        <h2>Hasil Clip Shorts:</h2>
+        <p><strong>Link Share (buka di Shorts player):</strong></p>
+        <textarea id="shareLink" readonly></textarea>
+
+        <p><strong>Link Embed (untuk website, vertical 9:16):</strong></p>
+        <textarea id="embedCode" readonly></textarea>
+
+        <div id="preview">
+            <h3>Preview Player (Vertical Shorts Style):</h3>
+            <div id="playerContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function getShortsId(url) {
+            const regExp = /^.*(youtube\.com\/shorts\/|youtu\.be\/)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function generateClip() {
+            const urlInput = document.getElementById('url').value.trim();
+            const start = parseInt(document.getElementById('start').value) || 0;
+            const end = parseInt(document.getElementById('end').value) || null;
+
+            const videoId = getShortsId(urlInput);
+            if (!videoId) {
+                alert('URL YouTube Shorts tidak valid! Pastikan menggunakan format https://www.youtube.com/shorts/...');
+                return;
+            }
+
+            let shareLink = `https://www.youtube.com/shorts/${videoId}?t=${start}`;
+            if (end && end > start) {
+                // Parameter end tidak resmi untuk Shorts, tapi coba pakai feature=share&e=
+                // Alternatif: hanya gunakan t=start
+                // Di sini kita pakai t=start saja untuk kompatibilitas terbaik
+            }
+
+            // Untuk embed Shorts: gunakan embed biasa + parameter, dan style vertical
+            let embedSrc = `https://www.youtube.com/embed/${videoId}?start=${start}`;
+            if (end && end > start) {
+                embedSrc += `&end=${end}`;
+            }
+            embedSrc += '&autoplay=0';
+
+            let embedCode = `<iframe width="315" height="560" src="${embedSrc}" title="YouTube Shorts" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+
+            document.getElementById('shareLink').value = shareLink;
+            document.getElementById('embedCode').value = embedCode;
+
+            // Preview vertical
+            let playerHtml = `<iframe width="315" height="560" src="${embedSrc}" frameborder="0" allowfullscreen style="max-width:100%; aspect-ratio:9/16;"></iframe>`;
+
+            document.getElementById('playerContainer').innerHTML = playerHtml;
+
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
