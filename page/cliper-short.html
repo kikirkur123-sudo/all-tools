@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 600px; /* Lebih sempit untuk fokus vertikal */
             margin: 0 auto;
             padding: 20px;
             background-color: #f4f4f4;
@@ -15,7 +15,7 @@
         }
         h1 {
             text-align: center;
-            color: #ff0000;
+            color: #ff0000; /* Warna merah seperti YouTube */
         }
         label {
             display: block;
@@ -50,23 +50,21 @@
             margin-top: 20px;
             text-align: center;
         }
+        #playerContainer {
+            max-width: 315px; /* Lebar vertikal */
+            margin: 0 auto;
+        }
         textarea {
             width: 100%;
             height: 100px;
             margin-top: 10px;
             padding: 10px;
         }
-        .note {
-            font-size: 14px;
-            color: #666;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
     <h1>YouTube Shorts Clipper</h1>
-    <p>Masukkan URL YouTube Shorts, waktu mulai dan akhir (dalam detik), lalu generate link/embed clip khusus untuk Shorts.</p>
-    <p class="note">Catatan: YouTube Shorts maksimal 60 detik. Parameter "end" mungkin tidak selalu berfungsi sempurna di player Shorts, tapi "start" akan membuat video langsung mulai dari waktu tersebut.</p>
+    <p>Masukkan URL YouTube Shorts, waktu mulai dan akhir (dalam detik), lalu generate link/embed clip vertikal.</p>
 
     <label for="url">URL YouTube Shorts:</label>
     <input type="text" id="url" placeholder="Contoh: https://www.youtube.com/shorts/dQw4w9WgXcQ">
@@ -74,28 +72,28 @@
     <label for="start">Waktu Mulai (detik):</label>
     <input type="number" id="start" value="0" min="0">
 
-    <label for="end">Waktu Akhir (detik, opsional):</label>
+    <label for="end">Waktu Akhir (detik, opsional - jika kosongkan tidak auto stop):</label>
     <input type="number" id="end" min="0">
 
     <button onclick="generateClip()">Generate Clip</button>
 
     <div id="result">
         <h2>Hasil Clip Shorts:</h2>
-        <p><strong>Link Share (buka di Shorts player):</strong></p>
+        <p><strong>Link Share:</strong></p>
         <textarea id="shareLink" readonly></textarea>
 
-        <p><strong>Link Embed (untuk website, vertical 9:16):</strong></p>
+        <p><strong>Kode Embed (Vertikal):</strong></p>
         <textarea id="embedCode" readonly></textarea>
 
         <div id="preview">
-            <h3>Preview Player (Vertical Shorts Style):</h3>
+            <h3>Preview Player (Vertikal):</h3>
             <div id="playerContainer"></div>
         </div>
     </div>
 
     <script>
-        function getShortsId(url) {
-            const regExp = /^.*(youtube\.com\/shorts\/|youtu\.be\/)([^#&?]*).*/;
+        function getVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
@@ -105,33 +103,32 @@
             const start = parseInt(document.getElementById('start').value) || 0;
             const end = parseInt(document.getElementById('end').value) || null;
 
-            const videoId = getShortsId(urlInput);
+            const videoId = getVideoId(urlInput);
             if (!videoId) {
-                alert('URL YouTube Shorts tidak valid! Pastikan menggunakan format https://www.youtube.com/shorts/...');
+                alert('URL YouTube Shorts tidak valid!');
                 return;
             }
 
-            let shareLink = `https://www.youtube.com/shorts/${videoId}?t=${start}`;
+            let shareLink = `https://www.youtube.com/shorts/${videoId}?t=${start}s`;
             if (end && end > start) {
-                // Parameter end tidak resmi untuk Shorts, tapi coba pakai feature=share&e=
-                // Alternatif: hanya gunakan t=start
-                // Di sini kita pakai t=start saja untuk kompatibilitas terbaik
+                shareLink += `&end=${end}`;
             }
 
-            // Untuk embed Shorts: gunakan embed biasa + parameter, dan style vertical
-            let embedSrc = `https://www.youtube.com/embed/${videoId}?start=${start}`;
+            let embedCode = `<iframe width="315" height="560" src="https://www.youtube.com/embed/${videoId}?start=${start}`;
             if (end && end > start) {
-                embedSrc += `&end=${end}`;
+                embedCode += `&end=${end}`;
             }
-            embedSrc += '&autoplay=0';
-
-            let embedCode = `<iframe width="315" height="560" src="${embedSrc}" title="YouTube Shorts" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            embedCode += '&autoplay=0" frameborder="0" allowfullscreen></iframe>';
 
             document.getElementById('shareLink').value = shareLink;
             document.getElementById('embedCode').value = embedCode;
 
-            // Preview vertical
-            let playerHtml = `<iframe width="315" height="560" src="${embedSrc}" frameborder="0" allowfullscreen style="max-width:100%; aspect-ratio:9/16;"></iframe>`;
+            // Preview player vertikal
+            let playerHtml = `<iframe width="315" height="560" src="https://www.youtube.com/embed/${videoId}?start=${start}`;
+            if (end && end > start) {
+                playerHtml += `&end=${end}`;
+            }
+            playerHtml += '" frameborder="0" allowfullscreen></iframe>';
 
             document.getElementById('playerContainer').innerHTML = playerHtml;
 
